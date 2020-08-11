@@ -1,7 +1,8 @@
-package com.company;
+//package com.company;
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.BreadthFirstDirectedPaths;
 import java.util.ArrayList;
+import edu.princeton.cs.algs4.Queue;
 public class SAP {
     private Digraph graph;
     // constructor takes a digraph (not necessarily a DAG)
@@ -12,25 +13,54 @@ public class SAP {
     }
 
     private void deepanc(Digraph e, int s, BreadthFirstDirectedPaths k, int[] a){
-        if(k.hasPathTo(s)){a[0] = s;}
-        else{
-            for(int each : e.adj(s)){deepanc(e,each,k,a);}
+        Queue<Integer> queue = new Queue<>();
+        boolean[] marked = new boolean[e.V()];
+        int[] dist = new int[e.V()];
+        for(boolean each : marked){each = false;}
+        marked[s] = true;
+        dist[s] = 0;
+        queue.enqueue(s);
+        a[0] = 10000000;
+        while(!queue.isEmpty())
+        {
+            int curr = queue.dequeue();
+            if(k.hasPathTo(curr)){
+                if(k.distTo(a[0])>k.distTo(curr))
+                a[0]=curr;}
+            for(int each : e.adj(curr)){
+                if(!marked[each]){
+                    marked[each]=true;
+                    dist[each]=dist[curr]+1;
+                    queue.enqueue(each);
+                }
+            }
         }
     }
     private void deepanc(Digraph e, Iterable<Integer> s, BreadthFirstDirectedPaths k, int[] a){
         ArrayList<Integer> array = new ArrayList<>();
-        for(int n : s) {
-            int m[] = new int[1];
-            this.deepanc(e,n,k,m);
-            array.add(m[0]);
-            }
-        BreadthFirstDirectedPaths fund = new BreadthFirstDirectedPaths(e,s);
-        int c = 1000000;
-        for(int each : array){
-            int sum = fund.distTo(each)+k.distTo(each);
-            if(sum<c){c=sum;}
+        Queue<Integer> queue = new Queue<>();
+        boolean[] marked = new boolean[e.V()];
+        int[] dist = new int[e.V()];
+        a[0] = 100000000;
+        for(int n : s){
+            marked[n] = true;
+            dist[n] = 0;
+            queue.enqueue(n);
         }
-        a[0] = c;
+        while(!queue.isEmpty())
+        {
+            int curr = queue.dequeue();
+            if(k.hasPathTo(curr)){
+                if(k.distTo(a[0])>k.distTo(curr))
+                    a[0]=curr;}
+            for(int each : e.adj(curr)){
+                if(!marked[each]){
+                    marked[each]=true;
+                    dist[each]=dist[curr]+1;
+                    queue.enqueue(each);
+                }
+            }
+        }
         }
 
 
