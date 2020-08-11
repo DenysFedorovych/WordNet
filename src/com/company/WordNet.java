@@ -40,7 +40,7 @@ public class WordNet {
     {
         this.checkNull(synsets);
         this.checkNull(hypernyms);
-        tree = new BinarySearchST();
+        tree = new BinarySearchST<String,Integer>();
         In sns = new In(synsets);
         In hps = new In(hypernyms);
         while(hps.hasNextLine())
@@ -72,7 +72,7 @@ public class WordNet {
     public boolean isNoun(String word)
     {
         this.checkNull(word);
-
+        return tree.contains(word);
     }
 
     // distance between nounA and nounB (defined below)
@@ -80,6 +80,11 @@ public class WordNet {
     {
         this.checkNull(nounA);
         this.checkNull(nounB);
+        if(!this.isNoun(nounA)||!this.isNoun(nounB)){throw new IllegalArgumentException("Wrong");}
+        SAP sap = new SAP(graph);
+        int a = (int) tree.get(nounA);
+        int b = (int) tree.get(nounB);
+        return sap.length(a,b);
     }
 
     // a synset (second field of synsets.txt) that is the common ancestor of nounA and nounB
@@ -88,6 +93,11 @@ public class WordNet {
     {
         this.checkNull(nounA);
         this.checkNull(nounB);
+        if(!this.isNoun(nounA)||!this.isNoun(nounB)){throw new IllegalArgumentException("Wrong");}
+        SAP sap = new SAP(graph);
+        int a = (int) tree.get(nounA);
+        int b = (int) tree.get(nounB);
+        return nouns[sap.ancestor(a,b)];
     }
 
     private void checkNull(Object a)
