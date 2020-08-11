@@ -20,13 +20,16 @@ public class SAP {
         marked[s] = true;
         dist[s] = 0;
         queue.enqueue(s);
-        a[0] = 10000000;
+        a[0]=-1;
+        int champ = 10000000;
         while(!queue.isEmpty())
         {
             int curr = queue.dequeue();
             if(k.hasPathTo(curr)){
-                if(k.distTo(a[0])>k.distTo(curr))
-                a[0]=curr;}
+                if(champ>k.distTo(curr)+dist[curr]){
+                a[0]=curr;
+            champ=k.distTo(curr)+dist[curr];}
+            }
             for(int each : e.adj(curr)){
                 if(!marked[each]){
                     marked[each]=true;
@@ -36,12 +39,30 @@ public class SAP {
             }
         }
     }
+//    private void bfs(Digraph G, int s) {
+//        Queue<Integer> q = new Queue<Integer>();
+//        marked[s] = true;
+//        distTo[s] = 0;
+//        q.enqueue(s);
+//        while (!q.isEmpty()) {
+//            int v = q.dequeue();
+//            for (int w : G.adj(v)) {
+//                if (!marked[w]) {
+//                    edgeTo[w] = v;
+//                    distTo[w] = distTo[v] + 1;
+//                    marked[w] = true;
+//                    q.enqueue(w);
+//                }
+//            }
+//        }
+//    }
     private void deepanc(Digraph e, Iterable<Integer> s, BreadthFirstDirectedPaths k, int[] a){
         ArrayList<Integer> array = new ArrayList<>();
         Queue<Integer> queue = new Queue<>();
         boolean[] marked = new boolean[e.V()];
         int[] dist = new int[e.V()];
-        a[0] = 100000000;
+        a[0]=-1;
+        int champ = 10000000;
         for(int n : s){
             marked[n] = true;
             dist[n] = 0;
@@ -50,9 +71,12 @@ public class SAP {
         while(!queue.isEmpty())
         {
             int curr = queue.dequeue();
-            if(k.hasPathTo(curr)){
-                if(k.distTo(a[0])>k.distTo(curr))
-                    a[0]=curr;}
+            if(k.hasPathTo(curr)) {
+                if (champ > k.distTo(curr)+dist[curr]) {
+                    a[0] = curr;
+                    champ = k.distTo(curr)+dist[curr];
+                }
+            }
             for(int each : e.adj(curr)){
                 if(!marked[each]){
                     marked[each]=true;
@@ -67,19 +91,24 @@ public class SAP {
     // length of shortest ancestral path between v and w; -1 if no such path
     public int length(int v, int w)
     {
-        int a = ancestor(v,w);
+        this.checkNull(v);
+        this.checkNull(w);
+        if(v<0||w<0){throw new IllegalArgumentException("wrong");}
+        int a = this.ancestor(v,w);
         BreadthFirstDirectedPaths b = new BreadthFirstDirectedPaths(graph, w);
         BreadthFirstDirectedPaths c = new BreadthFirstDirectedPaths(graph, v);
-        if(a==-1){return a;}
+        if(a==(-1)){return -1;}
         else{return b.distTo(a)+c.distTo(a);}
     }
 
     // a common ancestor of v and w that participates in a shortest ancestral path; -1 if no such path
     public int ancestor(int v, int w)
     {
+        this.checkNull(v);
+        this.checkNull(w);
+        if(v<0||w<0){throw new IllegalArgumentException("wrong");}
         BreadthFirstDirectedPaths fund = new BreadthFirstDirectedPaths(graph, w);
         int[] a = new int[1];
-        a[0] = -1;
         this.deepanc(graph,v,fund,a);
         return a[0];
     }
@@ -90,10 +119,12 @@ public class SAP {
     {
         this.checkNull(v);
         this.checkNull(w);
-        int a = ancestor(v,w);
+        for(int each : v){this.checkNull(each); if(each<0){throw new IllegalArgumentException("wrong");}}
+        for(int each : w){this.checkNull(each); if(each<0){throw new IllegalArgumentException("wrong");}}
+        int a = this.ancestor(v,w);
         BreadthFirstDirectedPaths b = new BreadthFirstDirectedPaths(graph, w);
         BreadthFirstDirectedPaths c = new BreadthFirstDirectedPaths(graph, v);
-        if(a==-1){return a;}
+        if(a==(-1)){return -1;}
         else{return b.distTo(a)+c.distTo(a);}
     }
 
@@ -102,9 +133,10 @@ public class SAP {
     {
         this.checkNull(v);
         this.checkNull(w);
+        for(int each : v){this.checkNull(each); if(each<0){throw new IllegalArgumentException("wrong");}}
+        for(int each : w){this.checkNull(each); if(each<0){throw new IllegalArgumentException("wrong");}}
         BreadthFirstDirectedPaths fund = new BreadthFirstDirectedPaths(graph, w);
         int[] a = new int[1];
-        a[0] = -1;
         this.deepanc(graph,v,fund,a);
         return a[0];
     }
@@ -112,10 +144,6 @@ public class SAP {
     private void checkNull(Object a)
     {
         if(a==null){throw new IllegalArgumentException("Null");}
-    }
-    private void checkNull(Iterable a)
-    {
-        for(Object each : a){this.checkNull(each);}
     }
     // do unit testing of this class
     public static void main(String[] args){}

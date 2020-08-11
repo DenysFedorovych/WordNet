@@ -32,9 +32,9 @@ public class WordNet {
 
     /// CLASS WORDNET
 
-    private String[] nouns = new String[82191];
+    private String[] nouns;
     private BinarySearchST tree;
-    private Digraph graph = new Digraph(82192);
+    private Digraph graph;
     // constructor takes the name of the two input files
     public WordNet(String synsets, String hypernyms)
     {
@@ -43,6 +43,10 @@ public class WordNet {
         tree = new BinarySearchST<String,Integer>();
         In sns = new In(synsets);
         In hps = new In(hypernyms);
+        int k=0;
+        while(hps.hasNextLine()){k++;}
+        nouns = new String[k];
+        graph = new Digraph(k);
         while(hps.hasNextLine())
         {
             String[] current = hps.readLine().split(",");
@@ -76,16 +80,37 @@ public class WordNet {
     }
 
     // distance between nounA and nounB (defined below)
-    public int distance(String nounA, String nounB)
-    {
+    public int distance(String nounA, String nounB) {
         this.checkNull(nounA);
         this.checkNull(nounB);
-        if(!this.isNoun(nounA)||!this.isNoun(nounB)){throw new IllegalArgumentException("Wrong");}
+        if (!this.isNoun(nounA) || !this.isNoun(nounB)) {
+            throw new IllegalArgumentException("Wrong");
+        }
         SAP sap = new SAP(graph);
-        int a = (int) tree.get(nounA);
-        int b = (int) tree.get(nounB);
-        return sap.length(a,b);
+        ArrayList<Integer> listA = new ArrayList<>();
+        ArrayList<Integer> listB = new ArrayList<>();
+        for (int i = 0; i < nouns.length; i++) {
+            if (nouns[i].contains(" ")) {
+                for (String each : nouns[i].split(" ")) {
+                    if (each.equals(nounA)) {
+                        listA.add(i);
+                    }
+                    if (each.equals(nounB)) {
+                        listB.add(i);
+                    }
+                }
+            } else {
+                if (nouns[i].equals(nounA)) {
+                    listA.add(i);
+                }
+                if (nouns[i].equals(nounB)) {
+                    listB.add(i);
+                }
+            }
+        }
+        return sap.length(listA, listB);
     }
+
 
     // a synset (second field of synsets.txt) that is the common ancestor of nounA and nounB
     // in a shortest ancestral path (defined below)
@@ -95,9 +120,29 @@ public class WordNet {
         this.checkNull(nounB);
         if(!this.isNoun(nounA)||!this.isNoun(nounB)){throw new IllegalArgumentException("Wrong");}
         SAP sap = new SAP(graph);
-        int a = (int) tree.get(nounA);
-        int b = (int) tree.get(nounB);
-        return nouns[sap.ancestor(a,b)];
+        ArrayList<Integer> listA = new ArrayList<>();
+        ArrayList<Integer> listB = new ArrayList<>();
+        for(int i=0; i<82192; i++)
+        {
+            if (nouns[i].contains(" ")) {
+                for (String each : nouns[i].split(" ")) {
+                    if (each.equals(nounA)) {
+                        listA.add(i);
+                    }
+                    if (each.equals(nounB)) {
+                        listB.add(i);
+                    }
+                }
+            } else {
+                if (nouns[i].equals(nounA)) {
+                    listA.add(i);
+                }
+                if (nouns[i].equals(nounB)) {
+                    listB.add(i);
+                }
+            }
+        }
+        return nouns[sap.ancestor(listA,listB)];
     }
 
     private void checkNull(Object a)
