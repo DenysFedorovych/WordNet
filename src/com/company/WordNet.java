@@ -95,20 +95,11 @@ public class WordNet {
         ArrayList<Integer> listA = new ArrayList<>();
         ArrayList<Integer> listB = new ArrayList<>();
         for (int i = 0; i < nouns.length; i++) {
-            if (nouns[i].contains(" ")) {
-                for (String each : nouns[i].split(" ")) {
-                    if (each.equals(nounA)) {
-                        listA.add(i);
-                    }
-                    if (each.equals(nounB)) {
-                        listB.add(i);
-                    }
-                }
-            } else {
-                if (nouns[i].equals(nounA)) {
+            for (String each : nouns[i].split(" ")) {
+                if (each.equals(nounA)) {
                     listA.add(i);
                 }
-                if (nouns[i].equals(nounB)) {
+                if (each.equals(nounB)) {
                     listB.add(i);
                 }
             }
@@ -129,20 +120,11 @@ public class WordNet {
         ArrayList<Integer> listA = new ArrayList<>();
         ArrayList<Integer> listB = new ArrayList<>();
         for (int i = 0; i < nouns.length; i++) {
-            if (nouns[i].contains(" ")) {
-                for (String each : nouns[i].split(" ")) {
-                    if (each.equals(nounA)) {
-                        listA.add(i);
-                    }
-                    if (each.equals(nounB)) {
-                        listB.add(i);
-                    }
-                }
-            } else {
-                if (nouns[i].equals(nounA)) {
+            for (String each : nouns[i].split(" ")) {
+                if (each.equals(nounA)) {
                     listA.add(i);
                 }
-                if (nouns[i].equals(nounB)) {
+                if (each.equals(nounB)) {
                     listB.add(i);
                 }
             }
