@@ -8,35 +8,36 @@ import java.util.ArrayList;
 
 public class WordNet {
     /// CLASS NODE
-    private class Node implements Comparable<Node> {
-        private boolean special;
-        public int id;
-        public String[] strings;
-
-        public Node(int id, String string, boolean special) {
-            this.id = id;
-            this.strings = string.split(" ");
-            this.special = special;
-        }
-
-        @Override
-        public int compareTo(Node o) {
-            if (this.special) {
-                for (String each : o.strings) {
-                    if (each.equals(this.strings[0])) {
-                        return 0;
-                    }
-                }
-            }
-            return this.strings[0].compareTo(o.strings[0]);
-        }
-    }
+//    private class Node implements Comparable<Node> {
+//        private boolean special;
+//        public int id;
+//        public String[] strings;
+//
+//        public Node(int id, String string, boolean special) {
+//            this.id = id;
+//            this.strings = string.split(" ");
+//            this.special = special;
+//        }
+//
+//        @Override
+//        public int compareTo(Node o) {
+//            if (this.special) {
+//                for (String each : o.strings) {
+//                    if (each.equals(this.strings[0])) {
+//                        return 0;
+//                    }
+//                }
+//            }
+//            return this.strings[0].compareTo(o.strings[0]);
+//        }
+//    }
 
     /// CLASS WORDNET
 
-    private String[] nouns;
+    private ArrayList<String> nouns = new ArrayList<>();
     private BinarySearchST tree;
     private Digraph graph;
+    private SAP sap;
 
     // constructor takes the name of the two input files
     public WordNet(String synsets, String hypernyms) {
@@ -45,37 +46,30 @@ public class WordNet {
         tree = new BinarySearchST<String, Integer>();
         In sns = new In(synsets);
         In hps = new In(hypernyms);
-        int k = 0;
-        while (hps.hasNextLine()) {
-            k++;
-            String str = hps.readLine();
-        }
-        nouns = new String[k];
-        graph = new Digraph(k);
-        while (hps.hasNextLine()) {
-            String[] current = hps.readLine().split(",");
-            for (String each : current) {
-                graph.addEdge(Integer.parseInt(current[0]), Integer.parseInt(each));
-            }
-        }
         while (sns.hasNextLine()) {
             String[] current = sns.readLine().split(",");
+            nouns.add(current[1]);
             int id = Integer.parseInt(current[0]);
-            nouns[id] = current[1];
             for (String each : current[1].split(" ")) {
                 tree.put(each, id);
             }
         }
+        graph = new Digraph(nouns.size());
+        sap = new SAP(graph);
+        while (hps.hasNextLine()) {
+            String[] current = hps.readLine().split(",");
+            for (String each : current) {
+                graph.addEdge(Integer.parseInt(current[0]), Integer.parseInt(each));
+//                System.out.println("new edge from "+Integer.parseInt(current[0])+ " to "+Integer.parseInt(each)+ " was created");
+            }
+        }
+
 
     }
 
     // returns all WordNet nouns
     public Iterable<String> nouns() {
-        ArrayList<String> array = new ArrayList<>();
-        for (String each : nouns) {
-            array.add(each);
-        }
-        return array;
+        return nouns;
     }
 
     // is the word a WordNet noun?
@@ -91,20 +85,59 @@ public class WordNet {
         if (!this.isNoun(nounA) || !this.isNoun(nounB)) {
             throw new IllegalArgumentException("Wrong");
         }
-        SAP sap = new SAP(graph);
         ArrayList<Integer> listA = new ArrayList<>();
         ArrayList<Integer> listB = new ArrayList<>();
-        for (int i = 0; i < nouns.length; i++) {
-            for (String each : nouns[i].split(" ")) {
-                if (each.equals(nounA)) {
-                    listA.add(i);
-                }
-                if (each.equals(nounB)) {
-                    listB.add(i);
-                }
-            }
+        while(tree.contains(nounA)){
+            int a = (int) tree.get(nounA);
+            listA.add(a);
+//            System.out.println(nounA+" "+tree.get(nounA)+" "+ a);
+//            for(int k : graph.adj(a)){
+//                System.out.println(k);
+//            }
+//            if(graph.adj(a)==null){
+//                System.out.println("no adj");
+//            }
+//            else{
+//                System.out.println("adj not null");
+//            }
+            tree.delete(nounA);
         }
-        return sap.length(listA, listB);
+        for(int k : listA){tree.put(nounA,k); }
+        while(tree.contains(nounB)){
+            int a = (int) tree.get(nounB);
+            listB.add(a);
+//            System.out.println(nounB+ " " +tree.get(nounB) +" "+ a);
+//            for(int k : graph.adj(a)){
+//                System.out.println(k);
+//            }
+//            if(graph.adj(a)==null){
+//                System.out.println("no adj");
+//            }
+//            else{
+//                System.out.println("adj not null");
+//            }
+            tree.delete(nounB);
+        }
+        for(int k : listB){tree.put(nounB,k); }
+//        for (int i = 0; i < nouns.length; i++) {
+//            for (String each : nouns[i].split(" ")) {
+//                if (each.equals(nounA)) {
+//                    listA.add(i);
+//                }
+//                if (each.equals(nounB)) {
+//                    listB.add(i);
+//                }
+//            }
+//        }
+//        int dist = 10000000;
+//        for(int each : listA){
+//            for(int l : listB){
+//                if(sap.length(each,l)<dist){dist = sap.length(each,l);}
+//            }
+//        }
+//        return dist;
+
+        return sap.length(listA,listB);
     }
 
 
@@ -116,21 +149,32 @@ public class WordNet {
         if (!this.isNoun(nounA) || !this.isNoun(nounB)) {
             throw new IllegalArgumentException("Wrong");
         }
-        SAP sap = new SAP(graph);
         ArrayList<Integer> listA = new ArrayList<>();
         ArrayList<Integer> listB = new ArrayList<>();
-        for (int i = 0; i < nouns.length; i++) {
-            for (String each : nouns[i].split(" ")) {
-                if (each.equals(nounA)) {
-                    listA.add(i);
-                }
-                if (each.equals(nounB)) {
-                    listB.add(i);
-                }
-            }
+//        for (int i = 0; i < nouns.length; i++) {
+//            for (String each : nouns[i].split(" ")) {
+//                if (each.equals(nounA)) {
+//                    listA.add(i);
+//                }
+//                if (each.equals(nounB)) {
+//                    listB.add(i);
+//                }
+//            }
+//        }
+        while(tree.contains(nounA)){
+            int a = (int) tree.get(nounA);
+            listA.add(a);
+            tree.delete(nounA);
         }
+        for(int k : listA){tree.put(nounA,k);}
+        while(tree.contains(nounB)){
+            int a = (int) tree.get(nounB);
+            listB.add(a);
+            tree.delete(nounB);
+        }
+        for(int k : listB){tree.put(nounB,k);}
         if (sap.ancestor(listA, listB) != (-1)) {
-            return nouns[sap.ancestor(listA, listB)];
+            return nouns.get(sap.ancestor(listA, listB));
         } else {
             return null;
         }

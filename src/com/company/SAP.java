@@ -1,4 +1,4 @@
-package com.company;
+//package com.company;
 
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.BreadthFirstDirectedPaths;
@@ -46,23 +46,6 @@ public class SAP {
         }
     }
 
-    //    private void bfs(Digraph G, int s) {
-//        Queue<Integer> q = new Queue<Integer>();
-//        marked[s] = true;
-//        distTo[s] = 0;
-//        q.enqueue(s);
-//        while (!q.isEmpty()) {
-//            int v = q.dequeue();
-//            for (int w : G.adj(v)) {
-//                if (!marked[w]) {
-//                    edgeTo[w] = v;
-//                    distTo[w] = distTo[v] + 1;
-//                    marked[w] = true;
-//                    q.enqueue(w);
-//                }
-//            }
-//        }
-//    }
     private void deepanc(Digraph e, Iterable<Integer> s, BreadthFirstDirectedPaths k, int[] a) {
         ArrayList<Integer> array = new ArrayList<>();
         Queue<Integer> queue = new Queue<>();
