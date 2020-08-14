@@ -7,38 +7,13 @@ import edu.princeton.cs.algs4.BinarySearchST;
 import java.util.ArrayList;
 
 public class WordNet {
-    /// CLASS NODE
-//    private class Node implements Comparable<Node> {
-//        private boolean special;
-//        public int id;
-//        public String[] strings;
-//
-//        public Node(int id, String string, boolean special) {
-//            this.id = id;
-//            this.strings = string.split(" ");
-//            this.special = special;
-//        }
-//
-//        @Override
-//        public int compareTo(Node o) {
-//            if (this.special) {
-//                for (String each : o.strings) {
-//                    if (each.equals(this.strings[0])) {
-//                        return 0;
-//                    }
-//                }
-//            }
-//            return this.strings[0].compareTo(o.strings[0]);
-//        }
-//    }
 
     /// CLASS WORDNET
 
-    private ArrayList<String> nouns = new ArrayList<>();
+    private String[] nouns;
     private BinarySearchST tree;
-    private Digraph graph = new Digraph(100000);
+    private Digraph graph;
     private SAP sap;
-  //  private ArrayList<String> result = new ArrayList<>(); ////here
 
     // constructor takes the name of the two input files
     public WordNet(String synsets, String hypernyms) {
@@ -47,29 +22,32 @@ public class WordNet {
         tree = new BinarySearchST<String, ArrayList<Integer>>();
         In sns = new In(synsets);
         In hps = new In(hypernyms);
-        while (sns.hasNextLine()) {
-            String[] current = sns.readLine().split(",");
-            nouns.add(current[1]);
+        nouns = sns.readAllStrings();
+        graph = new Digraph(nouns.length);
+        for (int i = 0; i < nouns.length; i++) {
+            String[] current = nouns[i].split(",");
             int id = Integer.parseInt(current[0]);
-            for (String each : current[1].split(" ")) {
-                if(tree.contains(each)) {
+            String[] curr = current[1].split(" ");
+            for (String each : curr) {
+                if (tree.contains(each)) {
                     ArrayList<Integer> k = (ArrayList<Integer>) tree.get(each);
                     k.add(id);
                     tree.put(each, k);
-                }
-                else{
+                } else {
                     ArrayList<Integer> k = new ArrayList<>();
                     k.add(id);
                     tree.put(each, k);
                 }
             }
         }
-        //graph = new Digraph(nouns.size());
         while (hps.hasNextLine()) {
             String[] current = hps.readLine().split(",");
-            int k=0;
+            int k = 0;
             for (String each : current) {
-                if(k==0){k++; continue;}
+                if (k == 0) {
+                    k++;
+                    continue;
+                }
                 graph.addEdge(Integer.parseInt(current[0]), Integer.parseInt(each));
             }
         }
@@ -78,7 +56,7 @@ public class WordNet {
 
     // returns all WordNet nouns
     public Iterable<String> nouns() {
-        return nouns;
+        return tree.keys();
     }
 
     // is the word a WordNet noun?
@@ -97,7 +75,7 @@ public class WordNet {
         ArrayList<Integer> listA = (ArrayList<Integer>) tree.get(nounA);
         ArrayList<Integer> listB = (ArrayList<Integer>) tree.get(nounB);
 
-        return sap.length(listA,listB);
+        return sap.length(listA, listB);
     }
 
 
@@ -111,7 +89,7 @@ public class WordNet {
         }
         ArrayList<Integer> listA = (ArrayList<Integer>) tree.get(nounA);
         ArrayList<Integer> listB = (ArrayList<Integer>) tree.get(nounB);
-        return nouns.get(sap.ancestor(listA, listB));
+        return nouns[sap.ancestor(listA, listB)].split(",")[1];
     }
 
     private void checkNull(Object a) {
