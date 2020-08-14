@@ -10,13 +10,13 @@ public class Outcast {
 
     public String outcast(String[] nouns) {
         String result = null;
-        int res = 100000000;
+        int res = 0;
         for (String each : nouns) {
             int dist = 0;
             for (String str : nouns) {
                 dist += wordnet.distance(each, str);
             }
-            if (dist < res) {
+            if (dist > res) {
                 res = dist;
                 result = each;
             }

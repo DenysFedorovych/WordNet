@@ -38,7 +38,7 @@ public class WordNet {
     private BinarySearchST tree;
     private Digraph graph;
     private SAP sap;
-    private ArrayList<String> result = new ArrayList<>();
+  //  private ArrayList<String> result = new ArrayList<>(); ////here
 
     // constructor takes the name of the two input files
     public WordNet(String synsets, String hypernyms) {
@@ -53,7 +53,7 @@ public class WordNet {
             int id = Integer.parseInt(current[0]);
             for (String each : current[1].split(" ")) {
                 tree.put(each, id);
-                if(!result.contains(each)){result.add(each);}
+       //         if(!result.contains(each)){result.add(each);} ///// here
             }
         }
         graph = new Digraph(nouns.size());
@@ -69,7 +69,7 @@ public class WordNet {
 
     // returns all WordNet nouns
     public Iterable<String> nouns() {
-        return result;
+        return nouns;
     }
 
     // is the word a WordNet noun?
@@ -87,55 +87,28 @@ public class WordNet {
         }
         ArrayList<Integer> listA = new ArrayList<>();
         ArrayList<Integer> listB = new ArrayList<>();
-        while(tree.contains(nounA)){
-            int a = (int) tree.get(nounA);
-            listA.add(a);
-//            System.out.println(nounA+" "+tree.get(nounA)+" "+ a);
-//            for(int k : graph.adj(a)){
-//                System.out.println(k);
-//            }
-//            if(graph.adj(a)==null){
-//                System.out.println("no adj");
-//            }
-//            else{
-//                System.out.println("adj not null");
-//            }
-            tree.delete(nounA);
-        }
-        for(int k : listA){tree.put(nounA,k); }
-        while(tree.contains(nounB)){
-            int a = (int) tree.get(nounB);
-            listB.add(a);
-//            System.out.println(nounB+ " " +tree.get(nounB) +" "+ a);
-//            for(int k : graph.adj(a)){
-//                System.out.println(k);
-//            }
-//            if(graph.adj(a)==null){
-//                System.out.println("no adj");
-//            }
-//            else{
-//                System.out.println("adj not null");
-//            }
-            tree.delete(nounB);
-        }
-        for(int k : listB){tree.put(nounB,k); }
-//        for (int i = 0; i < nouns.length; i++) {
-//            for (String each : nouns[i].split(" ")) {
-//                if (each.equals(nounA)) {
-//                    listA.add(i);
-//                }
-//                if (each.equals(nounB)) {
-//                    listB.add(i);
-//                }
-//            }
+//        while(tree.contains(nounA)){
+//            int a = (int) tree.get(nounA);
+//            listA.add(a);
+//            tree.delete(nounA);
 //        }
-//        int dist = 10000000;
-//        for(int each : listA){
-//            for(int l : listB){
-//                if(sap.length(each,l)<dist){dist = sap.length(each,l);}
-//            }
+//        for(int k : listA){tree.put(nounA,k); }
+//        while(tree.contains(nounB)){
+//            int a = (int) tree.get(nounB);
+//            listB.add(a);
+//            tree.delete(nounB);
 //        }
-//        return dist;
+//        for(int k : listB){tree.put(nounB,k); }
+        for (int i = 0; i < nouns.size(); i++) {
+            for (String each : nouns.get(i).split(" ")) {
+                if (each.equals(nounA)) {
+                    listA.add(i);
+                }
+                if (each.equals(nounB)) {
+                    listB.add(i);
+                }
+            }
+        }
 
         return sap.length(listA,listB);
     }
@@ -151,28 +124,29 @@ public class WordNet {
         }
         ArrayList<Integer> listA = new ArrayList<>();
         ArrayList<Integer> listB = new ArrayList<>();
-//        for (int i = 0; i < nouns.length; i++) {
-//            for (String each : nouns[i].split(" ")) {
-//                if (each.equals(nounA)) {
-//                    listA.add(i);
-//                }
-//                if (each.equals(nounB)) {
-//                    listB.add(i);
-//                }
-//            }
+        for (int i = 0; i < nouns.size(); i++) {
+            for (String each : nouns.get(i).split(" ")) {
+                if (each.equals(nounA)) {
+                    listA.add(i);
+                }
+                if (each.equals(nounB)) {
+                    listB.add(i);
+                }
+            }
+        }
+//        while(tree.contains(nounA)){
+//            int a = (int) tree.get(nounA);
+//            listA.add(a);
+//            tree.delete(nounA);
 //        }
-        while(tree.contains(nounA)){
-            int a = (int) tree.get(nounA);
-            listA.add(a);
-            tree.delete(nounA);
-        }
-        for(int k : listA){tree.put(nounA,k);}
-        while(tree.contains(nounB)){
-            int a = (int) tree.get(nounB);
-            listB.add(a);
-            tree.delete(nounB);
-        }
-        for(int k : listB){tree.put(nounB,k);}
+//        for(int k : listA){tree.put(nounA,k);}
+//        while(tree.contains(nounB)){
+//            int a = (int) tree.get(nounB);
+//            listB.add(a);
+//            tree.delete(nounB);
+//        }
+//        for(int k : listB){tree.put(nounB,k);}
+
         if (sap.ancestor(listA, listB) != (-1)) {
             return nouns.get(sap.ancestor(listA, listB));
         } else {
