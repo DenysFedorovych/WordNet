@@ -36,7 +36,7 @@ public class WordNet {
 
     private ArrayList<String> nouns = new ArrayList<>();
     private BinarySearchST tree;
-    private Digraph graph;
+    private Digraph graph = new Digraph(100000);
     private SAP sap;
   //  private ArrayList<String> result = new ArrayList<>(); ////here
 
@@ -44,7 +44,7 @@ public class WordNet {
     public WordNet(String synsets, String hypernyms) {
         this.checkNull(synsets);
         this.checkNull(hypernyms);
-        tree = new BinarySearchST<String, Integer>();
+        tree = new BinarySearchST<String, ArrayList<Integer>>();
         In sns = new In(synsets);
         In hps = new In(hypernyms);
         while (sns.hasNextLine()) {
@@ -52,16 +52,25 @@ public class WordNet {
             nouns.add(current[1]);
             int id = Integer.parseInt(current[0]);
             for (String each : current[1].split(" ")) {
-                tree.put(each, id);
-       //         if(!result.contains(each)){result.add(each);} ///// here
+                if(tree.contains(each)) {
+                    ArrayList<Integer> k = (ArrayList<Integer>) tree.get(each);
+                    k.add(id);
+                    tree.put(each, k);
+                }
+                else{
+                    ArrayList<Integer> k = new ArrayList<>();
+                    k.add(id);
+                    tree.put(each, k);
+                }
             }
         }
-        graph = new Digraph(nouns.size());
+        //graph = new Digraph(nouns.size());
         while (hps.hasNextLine()) {
             String[] current = hps.readLine().split(",");
+            int k=0;
             for (String each : current) {
+                if(k==0){k++; continue;}
                 graph.addEdge(Integer.parseInt(current[0]), Integer.parseInt(each));
-//                System.out.println("new edge from "+Integer.parseInt(current[0])+ " to "+Integer.parseInt(each)+ " was created");
             }
         }
         sap = new SAP(graph);
@@ -85,30 +94,8 @@ public class WordNet {
         if (!this.isNoun(nounA) || !this.isNoun(nounB)) {
             throw new IllegalArgumentException("Wrong");
         }
-        ArrayList<Integer> listA = new ArrayList<>();
-        ArrayList<Integer> listB = new ArrayList<>();
-//        while(tree.contains(nounA)){
-//            int a = (int) tree.get(nounA);
-//            listA.add(a);
-//            tree.delete(nounA);
-//        }
-//        for(int k : listA){tree.put(nounA,k); }
-//        while(tree.contains(nounB)){
-//            int a = (int) tree.get(nounB);
-//            listB.add(a);
-//            tree.delete(nounB);
-//        }
-//        for(int k : listB){tree.put(nounB,k); }
-        for (int i = 0; i < nouns.size(); i++) {
-            for (String each : nouns.get(i).split(" ")) {
-                if (each.equals(nounA)) {
-                    listA.add(i);
-                }
-                if (each.equals(nounB)) {
-                    listB.add(i);
-                }
-            }
-        }
+        ArrayList<Integer> listA = (ArrayList<Integer>) tree.get(nounA);
+        ArrayList<Integer> listB = (ArrayList<Integer>) tree.get(nounB);
 
         return sap.length(listA,listB);
     }
@@ -122,36 +109,9 @@ public class WordNet {
         if (!this.isNoun(nounA) || !this.isNoun(nounB)) {
             throw new IllegalArgumentException("Wrong");
         }
-        ArrayList<Integer> listA = new ArrayList<>();
-        ArrayList<Integer> listB = new ArrayList<>();
-        for (int i = 0; i < nouns.size(); i++) {
-            for (String each : nouns.get(i).split(" ")) {
-                if (each.equals(nounA)) {
-                    listA.add(i);
-                }
-                if (each.equals(nounB)) {
-                    listB.add(i);
-                }
-            }
-        }
-//        while(tree.contains(nounA)){
-//            int a = (int) tree.get(nounA);
-//            listA.add(a);
-//            tree.delete(nounA);
-//        }
-//        for(int k : listA){tree.put(nounA,k);}
-//        while(tree.contains(nounB)){
-//            int a = (int) tree.get(nounB);
-//            listB.add(a);
-//            tree.delete(nounB);
-//        }
-//        for(int k : listB){tree.put(nounB,k);}
-
-        if (sap.ancestor(listA, listB) != (-1)) {
-            return nouns.get(sap.ancestor(listA, listB));
-        } else {
-            return null;
-        }
+        ArrayList<Integer> listA = (ArrayList<Integer>) tree.get(nounA);
+        ArrayList<Integer> listB = (ArrayList<Integer>) tree.get(nounB);
+        return nouns.get(sap.ancestor(listA, listB));
     }
 
     private void checkNull(Object a) {
