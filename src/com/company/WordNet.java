@@ -10,23 +10,22 @@ public class WordNet {
 
     /// CLASS WORDNET
 
-    private String[] nouns;
-    private BinarySearchST tree;
+    private ArrayList<String> nouns = new ArrayList<>();
+    private BinarySearchST tree = new BinarySearchST<String, ArrayList<Integer>>();
     private Digraph graph;
     private SAP sap;
+    private ArrayList<ArrayList<Integer>> numbers;
 
     // constructor takes the name of the two input files
     public WordNet(String synsets, String hypernyms) {
         this.checkNull(synsets);
         this.checkNull(hypernyms);
-        tree = new BinarySearchST<String, ArrayList<Integer>>();
         In sns = new In(synsets);
         In hps = new In(hypernyms);
-        nouns = sns.readAllStrings();
-        graph = new Digraph(nouns.length);
-        for (int i = 0; i < nouns.length; i++) {
-            String[] current = nouns[i].split(",");
+        while(sns.hasNextLine()) {
+            String[] current = sns.readLine().split(",");
             int id = Integer.parseInt(current[0]);
+            nouns.add(current[1]);
             String[] curr = current[1].split(" ");
             for (String each : curr) {
                 if (tree.contains(each)) {
@@ -40,6 +39,7 @@ public class WordNet {
                 }
             }
         }
+        graph = new Digraph(nouns.size());
         while (hps.hasNextLine()) {
             String[] current = hps.readLine().split(",");
             int k = 0;
@@ -89,7 +89,7 @@ public class WordNet {
         }
         ArrayList<Integer> listA = (ArrayList<Integer>) tree.get(nounA);
         ArrayList<Integer> listB = (ArrayList<Integer>) tree.get(nounB);
-        return nouns[sap.ancestor(listA, listB)].split(",")[1];
+        return nouns.get(sap.ancestor(listA, listB));
     }
 
     private void checkNull(Object a) {
