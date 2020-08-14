@@ -38,6 +38,7 @@ public class WordNet {
     private BinarySearchST tree;
     private Digraph graph;
     private SAP sap;
+    private ArrayList<String> result = new ArrayList<>();
 
     // constructor takes the name of the two input files
     public WordNet(String synsets, String hypernyms) {
@@ -52,10 +53,10 @@ public class WordNet {
             int id = Integer.parseInt(current[0]);
             for (String each : current[1].split(" ")) {
                 tree.put(each, id);
+                if(!result.contains(each)){result.add(each);}
             }
         }
         graph = new Digraph(nouns.size());
-        sap = new SAP(graph);
         while (hps.hasNextLine()) {
             String[] current = hps.readLine().split(",");
             for (String each : current) {
@@ -63,13 +64,12 @@ public class WordNet {
 //                System.out.println("new edge from "+Integer.parseInt(current[0])+ " to "+Integer.parseInt(each)+ " was created");
             }
         }
-
-
+        sap = new SAP(graph);
     }
 
     // returns all WordNet nouns
     public Iterable<String> nouns() {
-        return nouns;
+        return result;
     }
 
     // is the word a WordNet noun?
