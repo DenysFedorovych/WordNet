@@ -2,7 +2,7 @@
 
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.In;
-import edu.princeton.cs.algs4.BinarySearchST;
+import edu.princeton.cs.algs4.RedBlackBST;
 
 import java.util.ArrayList;
 
@@ -11,10 +11,9 @@ public class WordNet {
     /// CLASS WORDNET
 
     private ArrayList<String> nouns = new ArrayList<>();
-    private BinarySearchST tree = new BinarySearchST<String, ArrayList<Integer>>();
+    private RedBlackBST tree = new RedBlackBST<String, ArrayList<Integer>>();
     private Digraph graph;
     private SAP sap;
-    private ArrayList<ArrayList<Integer>> numbers;
 
     // constructor takes the name of the two input files
     public WordNet(String synsets, String hypernyms) {
